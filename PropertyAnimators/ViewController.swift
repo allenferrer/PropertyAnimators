@@ -34,17 +34,31 @@ class ViewController: UIViewController {
             self.block.frame.origin.x = screenWidth - blockWidth
             self.block.transform = CGAffineTransform(rotationAngle: CGFloat.pi)
         })
+        animator.addCompletion { (position) in
+            self.block.backgroundColor = UIColor.red
+        }
+        
     }
     
     @IBAction func startAnimation(_ sender: Any) {
+        if animator.isRunning {
+            return
+        }
         switch animator.state {
         case .active:
+            animator.isReversed = true
+            animator.addAnimations {
+                self.block.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
+            }
+            animator.startAnimation()
+            
                 break
         case .inactive:
             setupAnimation()
             animator.startAnimation()
             break
         case .stopped:
+            animator.finishAnimation(at: .end)
                 break
         default:
             break
@@ -53,12 +67,17 @@ class ViewController: UIViewController {
     }
     
     @IBAction func pauseAnimation(_ sender: Any) {
+        if animator.state == .active {
+            animator.pauseAnimation()
+        }
     }
     
     @IBAction func stopAnimation(_ sender: Any) {
+        animator.stopAnimation(true)
     }
     
     @IBAction func sliderDidChange(_ sender: Any) {
+        animator.fractionComplete = CGFloat(slider.value)
     }
 }
 
